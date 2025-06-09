@@ -5,6 +5,7 @@ import projectRoutes from './routes/project.js';
 import inviteRoutes from './routes/invites.js';
 import messageRoutes from './routes/message.js';
 import aiRoutes from './routes/ai.js';
+import fileRoutes from './routes/file.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 connectDB();
@@ -27,6 +28,14 @@ app.use(
     })
 );
 
+// app.use((req, res, next) => {
+//   res.setHeader(
+//     'Content-Security-Policy',
+//     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+//   );
+//   next();
+// });
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -38,6 +47,7 @@ app.use('/project', projectRoutes);
 app.use('/projectInvites', inviteRoutes);
 app.use('/message', messageRoutes);
 app.use('/ai', aiRoutes);
+app.use('/file', fileRoutes);
 
 
 

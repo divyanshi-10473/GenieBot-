@@ -49,7 +49,7 @@ function AddCollab({ projectId }) {
         dispatch(deleteConversation(projectId)).unwrap().then((data) => {
             console.log(data, "this is the data from delete conversation", data?.success)
             if (data?.success) {
-                toast.success(data?.message, { position: 'bottom-right' });
+                toast.success(data?.message, { position: 'bottom-right' })
                 setShowTeammates(false)
             }
         })
@@ -86,7 +86,6 @@ async function handleDeleteInvite(inviteId) {
     .then((data) => {
       console.log("Deleted invite:", inviteId);
       toast.success("Invite removed successfully.", { position: "bottom-right" });
-      // Optionally, re-fetch invites or update local state here:
       dispatch(fetchInvitesByProjectId(projectId));
     })
     .catch((err) => {

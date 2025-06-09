@@ -140,18 +140,16 @@ export const deleteInvite = async (req, res) => {
   try {
     const { inviteId } = req.params;
 
-    // 1) Find the invite
     const invite = await projectInvite.findById(inviteId);
     if (!invite) {
       return res.status(404).json({ message: 'Invite not found' });
     }
 
-    // 2) Authorization: only the inviter can delete
     if (invite.invitedBy.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this invite' });
     }
 
-    // 3) Remove the user from the project.users array
+
     const project = await Project.findById(invite.projectId);
     if (project) {
       project.users = project.users.filter(

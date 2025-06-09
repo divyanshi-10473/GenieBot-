@@ -3,6 +3,7 @@ import authReducer from './auth'
 import projectReducer from './project'
 import inviteReducer from './invites'
 import messageReducer from './message'
+import fileReducer from './file'
 ; 
 
 const store = configureStore({
@@ -11,6 +12,7 @@ const store = configureStore({
     project: projectReducer,
     projectInvites: inviteReducer,
     message: messageReducer,
+    files: fileReducer,
 
   },
    middleware: (getDefaultMiddleware) =>

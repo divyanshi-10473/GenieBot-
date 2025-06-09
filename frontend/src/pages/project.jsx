@@ -152,7 +152,7 @@ const Project = () => {
   </div>
 ) : (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  mt-16 max-w-[1300px] gap-12 mx-auto">
-    {[...ProjectsList].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((project)=>(
+    {[...ProjectsList].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map((project)=>(
 
       <div
         key={project._id}

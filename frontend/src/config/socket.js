@@ -21,9 +21,7 @@ export const initializeSocket = (projectId) => {
       console.error('Socket connection error:', err.message);
     });
 
-    socketInstance.on('disconnect', (reason) => {
-      console.warn('Socket disconnected:', reason);
-    });
+
   }
 
   return socketInstance;
@@ -40,9 +38,4 @@ export const sendMessage = (eventName, data) => {
   socketInstance.emit(eventName, data);
 };
 
-export const disconnectSocket = () => {
-  if (socketInstance) {
-    socketInstance.disconnect();
-    socketInstance = null;
-  }
-};
+

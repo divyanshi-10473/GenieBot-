@@ -36,6 +36,7 @@ export const fetchProjects = createAsyncThunk(
       const response = await axios.get("http://localhost:3000/project/get", {
         withCredentials: true,
       });
+      
       return response?.data; 
     } catch (err) {
       if (err.response && err.response.data) {
@@ -46,6 +47,8 @@ export const fetchProjects = createAsyncThunk(
     }
   }
 )
+
+
 
 
 export const inviteCollaborator = createAsyncThunk(
@@ -104,7 +107,7 @@ const projectSlice = createSlice({
     }).addCase(fetchProjects.rejected,(state,action)=>{
         state.isLoading = false;
         state.ProjectsList = [];
-    })
+    }) 
       .addCase(fetchInvitesByProjectId.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -119,7 +122,7 @@ const projectSlice = createSlice({
       });
 }
 
-});
+})
 
 
 export default projectSlice.reducer;

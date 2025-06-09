@@ -15,7 +15,7 @@ const NotificationPopover = () => {
 
   useEffect(() => {
     dispatch(fetchUserInvites());
-  }, [dispatch]);
+  }, [dispatch, inviteProject]);
 
   const handleAccept = async (inviteId) => {
     try {
