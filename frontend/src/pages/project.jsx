@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import avatar from '../assets/avtar.png';
+import pro from '../assets/noProject.png'
 import emptyState from '../assets/avtar.png';        // ← your "no projects" image
 import {
   DropdownMenu,
@@ -69,6 +70,7 @@ const Project = () => {
   };
 
   const handleClick = (projectId) => {
+    
     navigate(`/chatroom/${projectId}`);
   };
 
@@ -82,8 +84,8 @@ const Project = () => {
   return (
     <div className="min-h-screen bg-[rgb(18,25,39)]">
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 shadow-2xl shadow-teal-400 bg-[rgb(18,25,39)]">
-        <div className="text-2xl font-bold text-teal-400">
-          Genie<span className="text-white">Bot</span>
+        <div className="text-2xl font-bold text-white">
+          Collaborator<span className="text-teal-400">X</span>
         </div>
         <div className="flex items-center gap-4">
           <Dialog
@@ -127,11 +129,8 @@ const Project = () => {
               <img src={avatar} alt="User" className="w-8 h-8 rounded-full cursor-pointer" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40">
-              <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+              <DropdownMenuLabel>Welcome {user?.name}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <UserCog className="mr-2 h-4 w-4" /> Account
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" /> Logout
               </DropdownMenuItem>
@@ -141,14 +140,16 @@ const Project = () => {
       </nav>
 
       <div className="p-6">
+        <div className='sticky top-16 z-10 bg-[rgb(18,25,39)] pt-6 pb-1'>
         <h1 className="mb-8 text-3xl font-bold text-gray-200">👋 Welcome back!</h1>
 
         <h2 className="mb-4 text-xl font-semibold text-gray-200">Your Projects</h2>
+        </div>
      {ProjectsList.length === 0 ? (
-  <div className="flex flex-col items-center justify-center mt-16 text-center">
-    <img src={emptyState} alt="No projects" className="w-64 opacity-60" />
-    <p className="mt-6 text-gray-300 text-lg font-medium">No projects yet</p>
-    <p className="text-gray-500 text-sm">Click “New Project” to get started 🚀</p>
+  <div className="flex flex-col items-center justify-center  text-center">
+    <img src={pro} alt="No projects" className="w-[600px]" />
+    {/* <p className="mt-6 text-gray-300 text-lg font-medium">No projects yet</p>
+    <p className="text-gray-500 text-sm">Click “New Project” to get started 🚀</p> */}
   </div>
 ) : (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  mt-16 max-w-[1300px] gap-12 mx-auto">
@@ -210,6 +211,7 @@ const Project = () => {
 
        
       </div>
+      
     </div>
   );
 };

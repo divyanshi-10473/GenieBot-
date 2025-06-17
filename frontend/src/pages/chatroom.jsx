@@ -20,6 +20,7 @@ import Editor from '@/components/code-editor';
 import '../index.css';
 
 const Chatroom = () => {
+  
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { messagesList } = useSelector((state) => state.message);
@@ -40,10 +41,10 @@ const Chatroom = () => {
 
 const WriteAiMessage = (msg) => {
   try {
-    const match = msg.match(/\{[\s\S]*\}/); // Matches first full JSON object
+    const match = msg.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No JSON found");
 
-    const parsed = JSON.parse(match[0]); // Parse the extracted JSON string
+    const parsed = JSON.parse(match[0]); 
 
     return (
       <div className="overflow-auto bg-slate-950 text-white rounded-sm p-2">
@@ -93,7 +94,25 @@ const WriteAiMessage = (msg) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messagesList, scrollToBottom]);
+  }, [ scrollToBottom]);
+
+  useEffect(()=>{
+    dispatch(fetchMessagesByProject(projectId))
+  },[messagesList])
+
+
+  useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth < 768) {
+      setChatOpen(true);
+    }
+  };
+
+  handleResize(); 
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
   return (
     <div className="h-screen md:pl-12 flex flex-col md:flex-row bg-[rgb(18,25,39)] text-white">
@@ -106,7 +125,7 @@ const WriteAiMessage = (msg) => {
         </button>
       </div>
 
-      {/* Chat Panel */}
+
       <div className={`chat-section transition-all duration-300 ease-in-out min-h-screen
         ${chatOpen ? 'w-full md:w-96 p-4' : 'w-0 md:w-0 p-0 overflow-hidden'} 
         flex flex-col border-b border-teal-800/40 bg-[rgb(24,32,46)]`}>
@@ -124,7 +143,12 @@ const WriteAiMessage = (msg) => {
           ) : (
             messagesList.map((msg, idx) => {
               const isSystem = !msg.sender || msg.system === true;
-              const isMe = !isSystem && msg.sender._id === user.id;
+            const isMe =
+  !isSystem &&
+  (msg.sender?._id === user.id ||
+   msg.sender === user.id || 
+   msg.senderId === user.id)
+
               const sender = isSystem ? 'AI Bot' : msg.sender.username;
 
               return (
@@ -160,7 +184,7 @@ const WriteAiMessage = (msg) => {
           <div ref={msgEndRef} />
         </div>
 
-        {/* Message Input */}
+ 
         <div className="flex items-center gap-2 h-[50px] bg-[rgb(24,32,46)] fixed md:relative bottom-0 p-4 md:p-0 left-2 right-4">
           <Input
             value={message}
@@ -177,7 +201,7 @@ const WriteAiMessage = (msg) => {
         </div>
       </div>
 
-      {/* Editor Panel */}
+    
       <div className="hidden md:flex flex-1 h-full">
         <Editor projectId={projectId} />
       </div>

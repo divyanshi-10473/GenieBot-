@@ -1,8 +1,7 @@
+// socket.js
 import { io } from 'socket.io-client';
 
 let socketInstance = null;
-
-
 
 export const initializeSocket = (projectId) => {
   if (!projectId) {
@@ -14,21 +13,23 @@ export const initializeSocket = (projectId) => {
     socketInstance = io(import.meta.env.VITE_SOCKET_URL, {
       query: { projectId },
       transports: ['websocket'],
-      withCredentials: true, 
+      withCredentials: true,
     });
 
     socketInstance.on('connect_error', (err) => {
       console.error('Socket connection error:', err.message);
     });
-
-
   }
 
   return socketInstance;
 };
-export const recieveMessage =(eventName, cb)=>{
-    socketInstance.on(eventName, cb)
-}
+
+export const getSocket = () => socketInstance;
+
+export const recieveMessage = (eventName, cb) => {
+  if (!socketInstance) return console.warn('Socket not initialized');
+  socketInstance.on(eventName, cb);
+};
 
 export const sendMessage = (eventName, data) => {
   if (!socketInstance) {
@@ -37,5 +38,3 @@ export const sendMessage = (eventName, data) => {
   }
   socketInstance.emit(eventName, data);
 };
-
-

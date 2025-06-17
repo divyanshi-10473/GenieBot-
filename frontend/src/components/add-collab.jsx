@@ -21,7 +21,7 @@ import {
 } from '../../store/invites';
 import { getAllUsers } from '../../store/auth';
 import Swal from 'sweetalert2';
-import { deleteConversation } from '../../store/message';
+import { deleteConversation, fetchMessagesByProject } from '../../store/message';
 function AddCollab({ projectId }) {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
@@ -51,6 +51,7 @@ function AddCollab({ projectId }) {
             if (data?.success) {
                 toast.success(data?.message, { position: 'bottom-right' })
                 setShowTeammates(false)
+                dispatch(fetchMessagesByProject(projectId));
             }
         })
 

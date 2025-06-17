@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { getWebContainer } from '@/config/webContainer';
 import { FilePlus, FilePlus2 } from 'lucide-react';
-import { initializeSocket } from '@/config/socket';
+import { getSocket } from '@/config/socket';
 
 const Editor = ({ projectId }) => {
 
@@ -26,15 +26,50 @@ const Editor = ({ projectId }) => {
   const [renamingFile, setRenamingFile] = useState(null);
   const [renameInputValue, setRenameInputValue] = useState('');
 
-  const [webContainer, setWebContainer]= useState(null);
+  const [webContainer, setWebContainer] = useState(null);
 
-  const [iframeUrl, setIframeUrl]= useState(null);
-   const [iframeVisible, setIframeVisible] = useState(false);
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [iframeVisible, setIframeVisible] = useState(false);
+  const [runProcess, setRunProcess] = useState(null);
+  const [terminalOutput, setTerminalOutput] = useState('');
+  const [isTerminalVisible, setIsTerminalVisible] = useState(false);
+const terminalRef = useRef(null);
 
- 
+
+
   const menuRef = useRef(null);
   const renameInputRef = useRef(null);
   const newFileInputRef = useRef(null);
+
+const appendToTerminal = (chunk) => {
+  setTerminalOutput(prev => prev + chunk);
+  setIsTerminalVisible(true);
+};
+
+
+useEffect(() => {
+  if (terminalRef.current) {
+    terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+  }
+  console.log(terminalOutput,"ye termianl output h")
+}, [terminalOutput]);
+
+useEffect(() => {
+  const socket = getSocket();
+  if (!socket || !projectId) return;
+
+  const handleFileTreeUpdate = () => {
+    console.log("fileTreeUpdated received in Editor");
+    dispatch(fetchFileTree(projectId));
+  };
+
+  socket.on('fileTreeUpdated', handleFileTreeUpdate);
+
+  return () => {
+    socket.off('fileTreeUpdated', handleFileTreeUpdate);
+  };
+}, [projectId, dispatch]);
+
 
 
 
@@ -130,7 +165,7 @@ const Editor = ({ projectId }) => {
     }
 
     if (fileKeys.includes(trimmedName)) {
-     toast.error('File already exists', { position: 'bottom-right' });
+      toast.error('File already exists', { position: 'bottom-right' });
       return;
     }
 
@@ -148,8 +183,8 @@ const Editor = ({ projectId }) => {
       setMenuOpenFor(null);
     } else {
       setMenuOpenFor(filename);
-      setRenamingFile(null); 
-      setShowNewFileInput(false); 
+      setRenamingFile(null);
+      setShowNewFileInput(false);
     }
   };
 
@@ -189,54 +224,55 @@ const Editor = ({ projectId }) => {
 
 
   const handleDelete = async (filename) => {
-            const result = await Swal.fire({
-                title: "Are you sure?",
-                text: "This action cannot be undone!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, delete it!",
-            });
-    
-            if (!result.isConfirmed) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-      dispatch(deleteFileFromProject({ projectId, filename }));
-      setMenuOpenFor(null);
+    if (!result.isConfirmed) return;
 
-      if (openFiles.includes(filename)) handleCloseFile(filename);
-      if (currentFile === filename) {
-        setCurrentFile(null);
-        setLocalContent('');
-      }
-    
+    dispatch(deleteFileFromProject({ projectId, filename }));
+    setMenuOpenFor(null);
+
+    if (openFiles.includes(filename)) handleCloseFile(filename);
+    if (currentFile === filename) {
+      setCurrentFile(null);
+      setLocalContent('');
+    }
+
   };
 
-    const closeIframe = () => {
+  const closeIframe = () => {
     setIframeVisible(false);
     setIframeUrl(null);
   };
 
   useEffect(() => {
     if (currentFile) {
-      setLocalContent(FileTrees[currentFile]?.file?.contents || '');
+      setLocalContent(FileTrees[currentFile]?.file?.contents || '')
     }
   }, [currentFile, FileTrees]);
 
-  useEffect(()=>{
-    if(!webContainer){
-      getWebContainer().then(container=>{
-        setWebContainer(container);
-        console.log("container started")
-      })
-    }
-  })
+useEffect(() => {
+  if (!webContainer) {
+    getWebContainer().then(container => {
+      setWebContainer(container);
+      console.log("container started");
+    });
+  }
+}, []);
 
-   console.log(iframeUrl, "ye batana phle");
+
+
 
   return (
     <>
-      <aside className="w-1/4 bg-gray-800 text-gray-100 p-4 overflow-y-auto hidden md:block relative">
+      <aside className="w-1/4 bg-gray-800 text-gray-100 p-4 overflow-y-auto hidden md:block relative max-w-48">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-sm font-semibold">Explorer</h3>
           <button
@@ -334,37 +370,42 @@ const Editor = ({ projectId }) => {
       </aside>
 
       <main className="flex-1 bg-gray-700 text-green-200 overflow-auto flex flex-col">
-                {iframeVisible && iframeUrl && (
-                 
-        <div
-          className="fixed inset-0 z-50 bg-white bg-opacity-90 flex flex-col"
-          style={{ backdropFilter: 'blur(5px)' }}
-        >
-          <div className="flex justify-end p-4">
-            <button
-              onClick={closeIframe}
-              className="text-white text-xl font-bold px-4 py-1 bg-red-600 rounded hover:bg-red-700"
-              aria-label="Close iframe"
-            >
-              ✕ Close
-            </button>
+        {iframeVisible && iframeUrl && (
+
+          <div
+            className="fixed inset-0 z-50 text-white bg-slate-200 bg-opacity-90 flex flex-col"
+            style={{ backdropFilter: 'blur(5px)' }}
+          >
+            <div className="flex w-full  px-0">
+              <div className='address-bar w-full'>
+                <input type="text"
+                  onChange={(e) => setIframeUrl(e.target.value)}
+                  value={iframeUrl} className='w-full p-2 px-4 bg-slate-900'
+                />
+              </div>
+              <button
+                onClick={closeIframe}
+                className="text-black text-xl font-bold px-4 py-1 bg-white rounded hover:bg-red-700"
+                aria-label="Close iframe"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src={iframeUrl}
+              className="flex-1 w-full"
+              style={{ border: 'none' }}
+              title="Run Preview"
+            />
           </div>
-          <iframe
-            src={iframeUrl}
-            className="flex-1 w-full"
-            style={{ border: 'none' }}
-            title="Run Preview"
-          />
-        </div>
-      )}
-          <div className="flex bg-gray-800 border-b border-gray-700 overflow-x-auto justify-between">
-            <div className='flex'>
+        )}
+        <div className="flex bg-gray-800 border-b border-gray-700 h-9 overflow-x-auto justify-between items-center">
+          <div className='flex '>
             {openFiles.length > 0 && openFiles.map((file, idx) => (
               <div
                 key={idx}
-                className={`flex items-center space-x-1 px-3 py-1 cursor-pointer ${
-                  currentFile === file ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700'
-                }`}
+                className={`flex items-center space-x-1 px-3 py-1 cursor-pointer ${currentFile === file ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700'
+                  }`}
               >
                 <button onClick={() => handleOpenFile(file)} className="font-medium truncate" title={file}>
                   {file}
@@ -378,49 +419,54 @@ const Editor = ({ projectId }) => {
                 </button>
               </div>
             ))}
-            </div>
-
-            <div className='actions flex gap-2'>
-              <button 
-              onClick={async ()=>{  
-                                   
-                                    webContainer.mount(FileTrees);
-                                    
-                                    const installProcess = await webContainer.spawn("npm", [ "install" ])
-
-
-
-                                    installProcess.output.pipeTo(new WritableStream({
-                                        write(chunk) {
-                                            console.log(chunk)
-                                        }
-                                    }))
-
-                                    const runProcess = await webContainer.spawn("npm", [ "start" ])
-
-
-
-                                   runProcess.output.pipeTo(new WritableStream({
-                                        write(chunk) {
-                                            console.log(chunk)
-                                        }
-                                    }))
-
-                                    webContainer.on('server-ready', (port, url)=>{
-                                      console.log(port,url);
-                                      setIframeUrl(url)
-                                      setIframeVisible(true);
-                                    })
-
-
-                                    
-              }}
-              className=' px-3 rounded-sm bg-slate-100 text-black absolute right-2 top-1'
-              >Run</button>
-            </div>
-
           </div>
-      
+
+<div className='actions flex gap-1 h-6'>
+    <button
+    onClick={() => setIsTerminalVisible(prev => !prev)}
+    className='px-3 rounded-sm bg-slate-100 text-black hover:bg-slate-300'
+  >
+    Terminal
+  </button>
+  <button
+    onClick={async () => {
+      setTerminalOutput('');
+      webContainer.mount(FileTrees);
+
+      const installProcess = await webContainer.spawn("npm", ["install"]);
+      installProcess.output.pipeTo(new WritableStream({
+        write(chunk) {
+          appendToTerminal(chunk);
+        }
+      }));
+
+      if (runProcess) runProcess.kill();
+
+      const tempRunProcess = await webContainer.spawn("npm", ["start"]);
+      tempRunProcess.output.pipeTo(new WritableStream({
+        write(chunk) {
+          appendToTerminal(chunk);
+        }
+      }));
+
+      setRunProcess(tempRunProcess);
+
+      webContainer.on('server-ready', (port, url) => {
+        setIframeUrl(url);
+        setIframeVisible(true);
+      });
+    }}
+    className='px-3 rounded-sm bg-slate-100 text-black hover:bg-slate-300'
+  >
+    Run
+  </button>
+
+
+</div>
+
+
+        </div>
+
 
         <div className="flex-1 overflow-y-auto">
           {currentFile ? (
@@ -436,9 +482,31 @@ const Editor = ({ projectId }) => {
           )}
         </div>
 
-        {iframeUrl && webContainer && 
-        <iframe src={iframeUrl} className='w-1/2 h-full'></iframe>
-        }
+
+{isTerminalVisible && (
+  <div
+  className="bg-black text-slate-400 text-xs font-mono p-2 h-60 border-t border-gray-700 relative overflow-hidden"
+  ref={terminalRef}
+>
+  <button
+    onClick={() => setIsTerminalVisible(false)}
+    className="absolute top-2 right-2 text-white hover:text-red-500 text-sm z-10"
+    title="Close Terminal"
+  >
+    ✕
+  </button>
+
+  <div className="w-full h-full overflow-auto">
+    <pre className="whitespace-pre-wrap break-all">{terminalOutput || 'Terminal ready...'}</pre>
+  </div>
+</div>
+
+)}
+
+
+
+
+
       </main>
     </>
   );

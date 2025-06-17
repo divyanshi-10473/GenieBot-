@@ -97,6 +97,9 @@ socket.on('project-message', async data => {
         };
 
         await project.save();
+        console.log("file emmitted successfully")
+        io.to(socket.project._id.toString()).emit('fileTreeUpdated')
+        
 
 
       }
@@ -107,7 +110,7 @@ socket.on('project-message', async data => {
     console.error("Error parsing AI response JSON:", err.message);
   }
 
-  // Save message in DB after fileTree is handled
+
   await Message.create({
     projectId: socket.project._id,
     sender: null,
@@ -116,7 +119,7 @@ socket.on('project-message', async data => {
     timestamp: new Date().toISOString(),
   });
 
-  // ✅ Emit *after* fileTree and message DB update is done
+
   io.to(socket.project._id.toString()).emit('project-message', {
     sender: { username: 'AI Bot' },
     content: result,
