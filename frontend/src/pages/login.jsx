@@ -4,6 +4,8 @@ import image from '../assets/robo.png';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../../store/auth';
 import toast from 'react-hot-toast';
+import img from '../assets/github.png'
+import { Button } from '@/components/ui/button';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -36,6 +38,11 @@ export default function Login() {
       });
     }
   };
+
+  const handleGitHubLogin = () => {
+  window.location.href = `https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&scope=user`;
+};
+
 
   return (
     <div className="min-h-screen w-full flex flex-col" style={{ backgroundColor: 'rgb(18, 25, 39)' }}>
@@ -82,6 +89,15 @@ export default function Login() {
             }}
           >
             <h2 className="text-2xl font-bold text-white text-center">Login</h2>
+            <Button
+  onClick={handleGitHubLogin}
+  variant="outline"
+  className="flex items-center gap-2 w-full justify-center"
+>
+  <img src={img} alt="GitHub" className="w-6 h-6" />
+  Continue with GitHub
+</Button>
+
             <form onSubmit={onSubmit} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-white mb-2">

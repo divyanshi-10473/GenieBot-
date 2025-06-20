@@ -63,7 +63,7 @@ useEffect(() => {
     dispatch(fetchFileTree(projectId));
   };
 
-  socket.on('fileTreeUpdated', handleFileTreeUpdate);
+  socket.on('fileTreeUpdated', handleFileTreeUpdate)
 
   return () => {
     socket.off('fileTreeUpdated', handleFileTreeUpdate);

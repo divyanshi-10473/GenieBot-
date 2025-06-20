@@ -7,12 +7,14 @@ import { Toaster } from 'react-hot-toast';
 import store from '../store/store.js'
 
 
+
 createRoot(document.getElementById('root')).render(
  <BrowserRouter >
 
     <Provider store={store}>
-
-    <App />
+ 
+      <App />
+ 
   <Toaster/>
     </Provider>
 

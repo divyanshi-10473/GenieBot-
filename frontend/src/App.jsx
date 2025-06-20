@@ -11,6 +11,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { checkAuth } from '../store/auth';
 import Chatroom from './pages/chatroom';
+import GitHubCallback from './components/github';
+
+
 
 function App() {
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
@@ -24,6 +27,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/auth/github/callback" element={<GitHubCallback />} />
       <Route path='/' element={<Home />} />
       <Route path='/login' element={<CheckAuth isAuthenticated={isAuthenticated} user={user}><Login /></CheckAuth>} />
       <Route path='/register' element={<CheckAuth isAuthenticated={isAuthenticated} user={user}><Register /></CheckAuth>} />
